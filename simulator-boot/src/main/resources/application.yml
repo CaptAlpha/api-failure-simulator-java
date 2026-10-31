@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: api-failure-simulator
+  main:
+    web-application-type: none
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level %logger{36} %kvp - %msg%n"
+simulator:
+  target: http://127.0.0.1:3000
+  host: 127.0.0.1
+  port: 8080
+  seed: resume-demo
+  upstream-timeout-ms: 10000
+  rules:
+    - id: checkout-outage
+      match:
+        method: POST
+        path: /checkout
+      probability: 0.3
+      action:
+        type: error
+        status: 503
+        body: Temporarily unavailable
+    - id: slow-products
+      match:
+        path-prefix: /products
+      action:
+        type: delay
+        ms: 500
+    - id: reset-connection
+      match:
+        path: /disconnect
+      action:
+        type: drop
